@@ -1,0 +1,9 @@
+# Never commit credential notes or raw GNS3 project files:
+# the .gnsproject/.gns3project bundles contain the REAL startup-configs.
+enable pass*.txt
+*pass*.txt
+*.gns3
+*.gns3project
+project-files/
+raw-configs/
+*.bak
