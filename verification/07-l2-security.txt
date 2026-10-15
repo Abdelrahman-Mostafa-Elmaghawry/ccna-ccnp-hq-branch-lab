@@ -1,0 +1,64 @@
+A1-HQ#show ip dhcp snooping binding
+MacAddress          IpAddress        Lease(sec)  Type           VLAN  Interface
+------------------  ---------------  ----------  -------------  ----  --------------------
+00:50:79:66:68:00   192.168.10.3     85375       dhcp-snooping   10    Ethernet0/1
+Total number of bindings: 1
+
+A1-HQ# show port-security interface e0/1
+Port Security              : Enabled
+Port Status                : Secure-up
+Violation Mode             : Shutdown
+Aging Time                 : 0 mins
+Aging Type                 : Absolute
+SecureStatic Address Aging : Disabled
+Maximum MAC Addresses      : 1
+Total MAC Addresses        : 1
+Configured MAC Addresses   : 0
+Sticky MAC Addresses       : 1
+Last Source Address:Vlan   : 0050.7966.6800:10
+Security Violation Count   : 0
+
+A1-HQ# show ip arp inspection
+
+Source Mac Validation      : Enabled
+Destination Mac Validation : Enabled
+IP Address Validation      : Enabled
+
+ Vlan     Configuration    Operation   ACL Match          Static ACL
+ ----     -------------    ---------   ---------          ----------
+   10     Enabled          Active                         
+   20     Enabled          Active                         
+   30     Enabled          Active                         
+   40     Enabled          Active                         
+
+ Vlan     ACL Logging      DHCP Logging      Probe Logging
+ ----     -----------      ------------      -------------
+   10     Deny             Deny              Off          
+   20     Deny             Deny              Off          
+   30     Deny             Deny              Off          
+   40     Deny             Deny              Off          
+
+ Vlan      Forwarded        Dropped     DHCP Drops      ACL Drops
+ ----      ---------        -------     ----------      ---------
+   10             67              0              0              0
+   20             58              0              0              0
+   30             32              0              0              0
+          
+ Vlan      Forwarded        Dropped     DHCP Drops      ACL Drops
+ ----      ---------        -------     ----------      ---------
+   40             26              0              0              0
+
+ Vlan   DHCP Permits    ACL Permits  Probe Permits   Source MAC Failures
+ ----   ------------    -----------  -------------   -------------------
+   10              6              0              0                     0
+   20              0              0              0                     0
+   30              0              0              0                     0
+   40              0              0              0                     0
+
+ Vlan   Dest MAC Failures   IP Validation Failures   Invalid Protocol Data
+ ----   -----------------   ----------------------   ---------------------
+   10                   0                        0                       0
+   20                   0                        0                       0
+   30                   0                        0                       0
+   40                   0                        0                       0
+A1-HQ# 

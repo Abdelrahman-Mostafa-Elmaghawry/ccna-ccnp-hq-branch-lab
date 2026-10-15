@@ -1,0 +1,70 @@
+HQ#
+HQ#trace 11.3.0.1
+Type escape sequence to abort.
+Tracing the route to 11.3.0.1
+VRF info: (vrf in name/id, vrf out name/id)
+  1 11.0.0.1 20 msec 20 msec 32 msec
+  2 11.2.0.1 56 msec 24 msec 52 msec
+HQ#
+HQ#
+HQ#
+HQ#trace 11.3.0.1
+*Oct 15 21:37:40.730: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/2, changed state to down
+HQ#trace 11.3.0.1
+*Oct 15 21:37:48.726: %OSPF-5-ADJCHG: Process 2, Nbr 2.0.0.2 on Tunnel1 from LOADING to FULL, Loading Done
+HQ#trace 11.3.0.1
+*Oct 15 21:37:52.382: %TRACKING-5-STATE: 1 ip sla 1 reachability Up->Down
+HQ#trace 11.3.0.1
+Type escape sequence to abort.
+Tracing the route to 11.3.0.1
+VRF info: (vrf in name/id, vrf out name/id)
+  1 11.1.0.1 20 msec 24 msec 32 msec
+  2 11.2.0.1 32 msec 56 msec 88 msec
+HQ#
+
+HQ#show track    
+Track 1
+  IP SLA 1 reachability
+  Reachability is Down
+    3 changes, last change 00:00:47
+  Latest operation return code: Timeout
+  Tracked by:
+    STATIC-IP-ROUTING 0
+HQ#
+HQ#
+HQ#
+HQ#
+HQ#show ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is 11.1.0.1 to network 0.0.0.0
+
+S*    0.0.0.0/0 [5/0] via 11.1.0.1
+      1.0.0.0/32 is subnetted, 1 subnets
+C        1.0.0.1 is directly connected, Loopback1
+      11.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        11.1.0.0/30 is directly connected, Serial2/1
+L        11.1.0.2/32 is directly connected, Serial2/1
+      12.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
+C        12.0.0.0/30 is directly connected, Tunnel1
+L        12.0.0.1/32 is directly connected, Tunnel1
+O     192.168.10.0/24 [110/2] via 192.168.50.2, 00:07:48, FastEthernet0/0
+O E2  192.168.11.0/24 [110/20] via 12.0.0.2, 00:07:47, Tunnel1
+O     192.168.20.0/24 [110/2] via 192.168.50.2, 00:07:48, FastEthernet0/0
+O E2  192.168.21.0/24 [110/20] via 12.0.0.2, 00:07:47, Tunnel1
+O     192.168.30.0/24 [110/2] via 192.168.50.3, 00:07:48, FastEthernet0/0
+O E2  192.168.31.0/24 [110/20] via 12.0.0.2, 00:07:47, Tunnel1
+O     192.168.40.0/24 [110/2] via 192.168.50.3, 00:07:48, FastEthernet0/0
+O E2  192.168.41.0/24 [110/20] via 12.0.0.2, 00:07:47, Tunnel1
+      192.168.50.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.50.0/24 is directly connected, FastEthernet0/0
+L        192.168.50.1/32 is directly connected, FastEthernet0/0
+O E2  192.168.60.0/24 [110/20] via 12.0.0.2, 00:07:47, Tunnel1
+HQ#

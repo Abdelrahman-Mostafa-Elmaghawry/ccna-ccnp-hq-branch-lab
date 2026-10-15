@@ -1,0 +1,25 @@
+HQ#show ip nat translations
+Pro Inside global      Inside local       Outside local      Outside global
+icmp 11.0.0.2:7497     192.168.10.3:7497  11.2.0.2:7497      11.2.0.2:7497
+icmp 11.0.0.2:7753     192.168.10.3:7753  11.2.0.2:7753      11.2.0.2:7753
+icmp 11.0.0.2:8009     192.168.10.3:8009  11.2.0.2:8009      11.2.0.2:8009
+icmp 11.0.0.2:8265     192.168.10.3:8265  11.2.0.2:8265      11.2.0.2:8265
+icmp 11.0.0.2:8521     192.168.10.3:8521  11.2.0.2:8521      11.2.0.2:8521
+HQ#
+HQ#
+HQ#
+HQ#
+HQ#
+HQ#
+HQ#
+*Oct 15 21:44:57.398: %TRACKING-5-STATE: 1 ip sla 1 reachability Up->Down
+HQ#
+*Oct 15 21:45:00.926: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/2, changed state to down
+HQ#show ip nat translations
+Pro Inside global      Inside local       Outside local      Outside global
+icmp 11.0.0.2:21833    192.168.10.3:21833 11.2.0.2:21833     11.2.0.2:21833
+icmp 11.0.0.2:22345    192.168.10.3:22345 11.2.0.2:22345     11.2.0.2:22345
+icmp 11.1.0.2:22857    192.168.10.3:22857 11.2.0.2:22857     11.2.0.2:22857
+icmp 11.1.0.2:23113    192.168.10.3:23113 11.2.0.2:23113     11.2.0.2:23113
+icmp 11.1.0.2:23369    192.168.10.3:23369 11.2.0.2:23369     11.2.0.2:23369
+HQ#

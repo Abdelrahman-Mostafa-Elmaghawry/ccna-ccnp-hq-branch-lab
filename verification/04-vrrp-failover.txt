@@ -1,0 +1,18 @@
+D1-B(config)#int e0/0
+D1-B(config-if)#shut
+
+D1-B#
+D1-B#show vrrp brief   
+Interface          Grp Pri Time  Own Pre State   Master addr     Group addr
+Vl10               10  90  3414       Y  Backup  192.168.11.2    192.168.11.100 
+Vl20               20  90  3414       Y  Backup  192.168.21.2    192.168.21.100 
+Vl30               30  100 3609       Y  Backup  192.168.31.2    192.168.31.100 
+Vl40               40  100 3609       Y  Backup  192.168.41.2    192.168.41.100 
+D1-B#
+D2-B#show vrrp brief
+Interface          Grp Pri Time  Own Pre State   Master addr     Group addr
+Vl10               10  100 3609       Y  Master  192.168.11.2    192.168.11.100 
+Vl20               20  100 3609       Y  Master  192.168.21.2    192.168.21.100 
+Vl30               30  150 3414       Y  Master  192.168.31.2    192.168.31.100 
+Vl40               40  150 3414       Y  Master  192.168.41.2    192.168.41.100 
+D2-B#

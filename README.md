@@ -1,18 +1,12 @@
-# README
-
-# README
-
 # Enterprise HQ + Branch Lab (GNS3) — HSRP/VRRP, OSPF/EIGRP, Dual-ISP, GRE over IPsec
 
 A complete enterprise network built in GNS3 and designed around real production practices: redundant distribution layer, dual-homed WAN with automatic failover, per-ISP NAT, encrypted site-to-site tunnel, and a hardened Layer 2 access layer.
 
 > Self-study project (CCNA / CCNP ENCOR level). All secrets in the configs are replaced with `<REDACTED>`.
-> 
 
 ## Topology
 
-> ![Network topology](docs/topology.png)
-> 
+![Network topology](docs/topology.png)
 
 ```
                          +---------+  11.2.0.0/30  +---------+
@@ -33,14 +27,14 @@ A complete enterprise network built in GNS3 and designed around real production 
                  | D1-HQ |=========| D2-HQ |   | D1-B  |=====| D2-B  |
                  | HSRP  |         | HSRP  |   | VRRP  |     | VRRP  |
                  +---+---+         +---+---+   +---+---+     +---+---+
-                     |   \\       /   |             |   \\     /   |
+                     |   \       /   |             |   \     /   |
                   A1-HQ  A2-HQ A3-HQ A4-HQ      A1-B  A2-B  A3-B  A4-B
 ```
 
 ## Devices
 
 | Site | Device | Role |
-| --- | --- | --- |
+|------|--------|------|
 | HQ | HQ | Edge router: dual ISP, NAT, GRE/IPsec, OSPF ASBR |
 | HQ | D1-HQ / D2-HQ | Distribution L3 switches, HSRP, inter-VLAN routing |
 | HQ | A1–A4-HQ | Access switches (port-security, DHCP snooping, DAI) |
@@ -54,36 +48,39 @@ A complete enterprise network built in GNS3 and designed around real production 
 ## IP Plan
 
 | Network | Purpose |
-| --- | --- |
+|---------|---------|
 | 192.168.10.0/24 | HQ VLAN 10 |
 | 192.168.20.0/24 | HQ VLAN 20 |
 | 192.168.30.0/24 | HQ VLAN 30 |
 | 192.168.40.0/24 | HQ VLAN 40 |
-| 192.168.50.0/24 | HQ transit LAN (router ↔︎ distribution) |
+| 192.168.50.0/24 | HQ transit LAN (router ↔ distribution) |
 | 192.168.11/21/31/41.0/24 | Branch VLANs 10/20/30/40 equivalents |
 | 192.168.60.0/24 | Branch transit LAN |
-| 11.0.0.0/30 | HQ ↔︎ ISP-1 (primary) |
-| 11.1.0.0/30 | HQ ↔︎ ISP-1 (backup) |
-| 11.2.0.0/30 | ISP-1 ↔︎ ISP-2 |
-| 11.3.0.0/30 | ISP-2 ↔︎ Branch |
+| 11.0.0.0/30 | HQ ↔ ISP-1 (primary) |
+| 11.1.0.0/30 | HQ ↔ ISP-1 (backup) |
+| 11.2.0.0/30 | ISP-1 ↔ ISP-2 |
+| 11.3.0.0/30 | ISP-2 ↔ Branch |
 | 12.0.0.0/30 | GRE tunnel |
 | 1.0.0.1 / 2.0.0.2 | HQ / Branch loopbacks (tunnel endpoints) |
 
 ## VLANs
 
-| VLAN | Name / Use |
-| --- | --- |
-| 10, 20, 30, 40 | User / department VLANs |
-| 999 | Native VLAN on all trunks (no hosts) |
+| VLAN | Name | HQ subnet | Branch subnet |
+|------|------|-----------|---------------|
+| 10 | IT | 192.168.10.0/24 | 192.168.11.0/24 |
+| 20 | SERVERS | 192.168.20.0/24 | 192.168.21.0/24 |
+| 30 | HR | 192.168.30.0/24 | 192.168.31.0/24 |
+| 40 | MGMT | 192.168.40.0/24 | 192.168.41.0/24 |
+| 999 | Native | - | - |
 
 ## Key Design Decisions
 
 | Area | Decision | Why |
-| --- | --- | --- |
+|------|----------|-----|
 | First-hop redundancy | HSRP at HQ, VRRP at Branch | Demonstrates both; VRRP is the open standard, HSRP is Cisco-native |
 | STP / HSRP alignment | STP root = HSRP active per VLAN (D1: 1,10,20,999; D2: 30,40) | Avoids suboptimal L2 paths that hairpin across the inter-distribution link |
 | HSRP tracking | Track uplink line-protocol, decrement 60 | Active gateway moves when its uplink fails, so traffic never blackholes |
-| OSPF (HQ) | MD5 auth, `passive-interface default`, router priority 255 on HQ, D1 priority 100 | Controls DR election, no adjacencies on user VLANs |
+| OSPF (HQ) | MD5 auth, `passive-interface default`, priority 255 on the HQ router, 100 on the distribution switches | Adjacencies only on intended links, no hellos on user VLANs. DR election is non-preemptive, so the DR role follows boot order unless the process is reset |
 | Standby SVIs | `ip ospf cost 10` | Keeps the return path symmetric with HSRP active |
 | EIGRP (Branch) | MD5 key-chain with time-based keys, offset-list | Key rollover without outage; offset-list makes the backup path a feasible successor |
 | WAN failover | Floating static + IP SLA + track | Detects ISP failure by reachability, not just link state |
@@ -92,14 +89,13 @@ A complete enterprise network built in GNS3 and designed around real production 
 | L2 security | DHCP snooping, DAI, BPDU guard, root guard, sticky port-security, errdisable recovery | Defense in depth at the access edge |
 | Native VLAN | 999 everywhere, `nonegotiate` | Prevents VLAN hopping, keeps VLAN 1 out of the data path |
 
-## Troubleshooting Scenario: Root Guard `Root\_Inconsistent`
+## Troubleshooting Scenario: Root Guard `Root_Inconsistent`
 
-**Symptom:** D2-B ports e0/2 and e0/3 go `\*ROOT\_Inc` and users behind them lose connectivity.
+**Symptom:** D2-B ports e0/2 and e0/3 go `*ROOT_Inc` and users behind them lose connectivity.
 
 **Cause:** Native VLAN was changed to 999 on the distribution side only. The access switch kept native VLAN 1, so its untagged BPDUs were received by the distribution as VLAN 999 and looked like a superior root bridge. Root guard did exactly what it should.
 
 **Diagnosis flow:**
-
 1. `show spanning-tree inconsistentports` — shows which ports and which VLAN.
 2. `show interfaces trunk` — compare native VLAN on both ends.
 3. `show cdp neighbors` / CDP native VLAN mismatch log message.
@@ -122,12 +118,17 @@ show port-security               show errdisable recovery
 show ntp status                  show interfaces trunk
 ```
 
-Failover tests to run and capture :
+Evidence captured from the running lab (`verification/`):
 
-1. Shut HQ → ISP-1 primary link: floating static takes over via 11.1.0.0/30, NAT switches to NAT-ISP2 path as configured.
-2. Shut D1-HQ uplink: HSRP tracking moves active to D2-HQ.
-3. Shut the Branch ISP link: tunnel drops, OSPF/EIGRP reconverge.
-4. shut D1-B: VRRP master moves to D2-B.
+| File | What it proves |
+|------|----------------|
+| `01-baseline.txt` | Normal state: routing tables, OSPF neighbors, IPsec SA, HSRP/VRRP roles |
+| `02-isp1-failover.txt` | ISP-1 primary link down: IP SLA track goes Down, floating static (AD 5) takes over via 11.1.0.1, traceroute path changes |
+| `03-hsrp-failover.txt` | D1-HQ uplink down: priority drops 150 to 90 via tracking, D2-HQ becomes Active for all groups |
+| `04-vrrp-failover.txt` | D1-B uplink down: priority drops 150 to 90 via tracking, D2-B becomes Master for all groups |
+| `05-nat-per-isp.txt` | NAT translates to 11.0.0.2 on ISP-1, then to 11.1.0.2 after failover |
+| `06-ospf-auth.txt` | MD5 authentication enabled on the LAN and tunnel OSPF interfaces |
+| `07-l2-security.txt` | DHCP snooping binding, sticky port-security, DAI active on VLANs 10-40 |
 
 ## Known Limitations
 
@@ -135,7 +136,9 @@ Failover tests to run and capture :
 - ISPs run OSPF instead of BGP (simplification).
 - Links through the IOU transit switches negotiate half duplex (IOU emulation artifact).
 - EtherChannel was removed after causing dynamic-routing instability in the emulated environment.
+- IOU transit switches are left unconfigured (VLAN 1 only).
 - One DHCP server per site (no failover pair).
+- ACLs block ICMP echo toward VLAN 10 in some directions; test pings accordingly.
 
 ## Repository Layout
 
@@ -145,12 +148,18 @@ configs/
   branch/   Branch, D1-B, D2-B, A1..A4-B, IOU1
   isp/      ISP-1, ISP-2
 docs/       topology image
+verification/  show-command outputs from failover tests
 ```
 
 ## Security Note
 
 Passwords, keys, and secrets are replaced by `<REDACTED>`. Use your own values when reproducing the lab.
 
+## Author
+
+Abdelrahman Mostafa - ECE graduate, Alexandria University. Self-studied CCNA / CCNP ENCOR.
+GitHub: https://github.com/Abdelrahman-Mostafa-Elmaghawry
+
 ## Tools
 
-GNS3, Cisco IOSv/IOU images , Wireshark.
+GNS3, Cisco IOSv/IOU images (not included), Wireshark.
